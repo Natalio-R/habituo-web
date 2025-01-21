@@ -67,37 +67,43 @@
   src: url("../../assets/fonts/Outfit/Outfit-Black.ttf") format("truetype");
   font-weight: 900;
 }
-h1 {
+h1,
+.h1 {
   font-family: "Outfit-Black";
   font-size: 80px;
   line-height: 92px;
 }
 
-h2 {
+h2,
+.h2 {
   font-family: "Outfit-ExtraBold";
   font-size: 64px;
   line-height: 72px;
 }
 
-h3 {
+h3,
+.h3 {
   font-family: "Outfit-Bold";
   font-size: 50px;
   line-height: 56px;
 }
 
-h4 {
+h4,
+.h4 {
   font-family: "Outfit-SemiBold";
   font-size: 32px;
   line-height: 40px;
 }
 
-h5 {
+h5,
+.h5 {
   font-family: "Outfit-SemiBold";
   font-size: 24px;
   line-height: 28px;
 }
 
-h6 {
+h6,
+.h6 {
   font-family: "Outfit-SemiBold";
   font-size: 18px;
   line-height: 24px;
@@ -122,7 +128,50 @@ caption {
   line-height: 18px;
 }
 
-*, ::before, ::after {
+#loading {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+#loading img {
+  user-select: none;
+  margin-bottom: 2rem;
+}
+#loading h1 {
+  font-family: "Outfit-ExtraBold";
+  font-weight: 800;
+  font-size: 50px;
+  line-height: 62px;
+  margin-bottom: 20px;
+}
+#loading p {
+  font-family: "Outfit-Medium";
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 28px;
+}
+#loading h1, #loading p {
+  text-align: center;
+}
+#loading h1::selection, #loading p::selection {
+  background-color: #ff8e3c;
+}
+#loading .gif {
+  width: 300px;
+  height: 200px;
+  background-image: url("../../assets/images/illustrations/loading.gif");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+*,
+::before,
+::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -131,6 +180,15 @@ caption {
 html {
   font-family: "Outfit-Regular", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-weight: 400;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
 }
 
 /*# sourceMappingURL=index.css.map */

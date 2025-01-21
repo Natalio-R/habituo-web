@@ -1,1 +1,1 @@
-export { default as Home } from "";
+export { default as Loading } from "../pages/Loading";
