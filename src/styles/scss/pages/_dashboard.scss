@@ -1,0 +1,217 @@
+#dashboard {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+
+  #col1 {
+    width: 12%;
+    max-width: 16%;
+    background-color: $white;
+    padding: 1rem;
+  }
+
+  #col2 {
+    width: 68%;
+    min-width: 50px;
+  }
+
+  #col3 {
+    width: 20%;
+    min-width: 20%;
+  }
+
+  .user-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    background-color: $main;
+    border-radius: 99px;
+    padding: 6px 10px 6px 6px;
+    user-select: none;
+    cursor: pointer;
+
+    img {
+      border-radius: 50%;
+    }
+
+    .user-avatar {
+      width: "40px";
+      height: "40px";
+      border-radius: "50%";
+      display: "flex";
+      align-items: "center";
+      justify-content: "center";
+      font-weight: "bold";
+      color: "#fff";
+      font-size: "18px";
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+      -webkit-mask-image: linear-gradient(
+        to right,
+        $white 80%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(to right, $white 80%, transparent 100%);
+
+      .user-name {
+        font-family: "Outfit-SemiBold";
+        font-weight: 600;
+        font-size: 1rem;
+        color: $button-text;
+      }
+
+      .user-email {
+        font-family: "Outfit-Medium";
+        font-weight: 500;
+        font-size: 0.85rem;
+        color: $light-text;
+      }
+    }
+  }
+
+  .dropdown__content {
+    position: absolute;
+    padding: 10px;
+    top: 80px;
+    left: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 10px;
+    background-color: $main;
+    border-radius: 20px;
+    user-select: none;
+    display: none;
+    opacity: 0;
+
+    &.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .content__card {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 5px 15px 5px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $white;
+      }
+
+      .card__icon {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 20px;
+        height: 100%;
+      }
+
+      .card__info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+
+        p {
+          font-family: "Outfit-SemiBold";
+          font-weight: 600;
+          font-size: 1rem;
+          color: $button-text;
+        }
+
+        span {
+          font-family: "Outfit-Regular";
+          font-weight: 400;
+          font-size: 0.85rem;
+          color: $light-text;
+        }
+      }
+    }
+  }
+
+  .column__lists {
+    .list {
+      margin: 15px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+
+      .list__item {
+        padding: 10px 14px 10px 10px;
+        border-radius: 99px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: $main;
+        }
+
+        a {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: 6px;
+          font-family: "Outfit-Medium";
+          font-weight: 500;
+          font-size: 13px;
+          line-height: 15.6px;
+          color: $paragraph;
+        }
+
+        &.active {
+          background-color: $button;
+
+          a,
+          svg {
+            color: $main;
+            stroke: $main;
+          }
+        }
+      }
+
+      .list__title {
+        font-family: "Outfit-SemiBold";
+          font-weight: 600;
+          font-size: 10px;
+          line-height: 12px;
+          text-transform: uppercase;
+          margin: 6px 0;
+      }
+    }
+  }
+
+  .column__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid $secondary;
+
+    .header__title {
+      width: 40%;
+
+      h2 {
+        font-family: "Outfit-SemiBold";
+        font-weight: 600;
+        font-size: 17px;
+        line-height: 17px;
+      }
+    }
+  }
+}
