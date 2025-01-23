@@ -4,10 +4,10 @@
   height: 100vh;
 
   #col1 {
-    width: 12%;
+    width: 13%;
     max-width: 16%;
     background-color: $white;
-    padding: 1rem;
+    padding: 10px;
   }
 
   #col2 {
@@ -33,19 +33,20 @@
     cursor: pointer;
 
     img {
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
     }
 
     .user-avatar {
-      width: "40px";
-      height: "40px";
-      border-radius: "50%";
+      width: "20px";
+      height: "20px";
       display: "flex";
       align-items: "center";
       justify-content: "center";
       font-weight: "bold";
       color: "#fff";
-      font-size: "18px";
+      font-size: "14px";
     }
 
     .user-info {
@@ -67,14 +68,14 @@
       .user-name {
         font-family: "Outfit-SemiBold";
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 12px;
         color: $button-text;
       }
 
       .user-email {
         font-family: "Outfit-Medium";
         font-weight: 500;
-        font-size: 0.85rem;
+        font-size: 10px;
         color: $light-text;
       }
     }
@@ -83,17 +84,18 @@
   .dropdown__content {
     position: absolute;
     padding: 10px;
-    top: 80px;
+    top: 60px;
     left: 1rem;
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    gap: 10px;
+    gap: 0;
     background-color: $main;
     border-radius: 20px;
     user-select: none;
     display: none;
     opacity: 0;
+    z-index: 99;
 
     &.active {
       display: flex;
@@ -131,14 +133,14 @@
         p {
           font-family: "Outfit-SemiBold";
           font-weight: 600;
-          font-size: 1rem;
+          font-size: 14px;
           color: $button-text;
         }
 
         span {
           font-family: "Outfit-Regular";
           font-weight: 400;
-          font-size: 0.85rem;
+          font-size: 12px;
           color: $light-text;
         }
       }
@@ -146,6 +148,7 @@
   }
 
   .column__lists {
+    user-select: none;
     .list {
       margin: 15px 0;
       display: flex;
@@ -154,12 +157,22 @@
       justify-content: flex-start;
 
       .list__item {
-        padding: 10px 14px 10px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 10px 10px 14px;
         border-radius: 99px;
         cursor: pointer;
+        width: 100%;
 
         &:hover {
           background-color: $main;
+          -webkit-mask-image: none;
+          mask-image: none;
+
+          .item__count {
+            background-color: $secondary;
+          }
         }
 
         a {
@@ -174,8 +187,16 @@
           color: $paragraph;
         }
 
+        svg {
+          width: 15%;
+        }
+
         &.active {
           background-color: $button;
+          white-space: nowrap;
+          overflow: hidden;
+          -webkit-mask-image: none;
+          mask-image: none;
 
           a,
           svg {
@@ -183,15 +204,41 @@
             stroke: $main;
           }
         }
+
+        .item__count {
+          right: 0;
+          padding: 4px 8px;
+          background-color: $background;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          font-size: 10px;
+          color: $paragraph;
+        }
+
+        &.loading {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+
+          .skeleton {
+            width: 100%;
+            height: 15px;
+            border-radius: 8px;
+            background-color: $main;
+          }
+        }
       }
 
       .list__title {
         font-family: "Outfit-SemiBold";
-          font-weight: 600;
-          font-size: 10px;
-          line-height: 12px;
-          text-transform: uppercase;
-          margin: 6px 0;
+        font-weight: 600;
+        font-size: 10px;
+        line-height: 12px;
+        text-transform: uppercase;
+        margin: 6px 0;
       }
     }
   }

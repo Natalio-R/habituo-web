@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Button from "../components/buttons/Button";
 import logo from "../assets/images/habituo-logo.svg";
@@ -92,7 +92,10 @@ const Navbar = () => {
                 <span className="user-email">{user.email}</span>
               </div>
             </div>
-            <div ref={dropdownRef} className={`dropdown__content ${dropdownActive ? "active" : ""}`}>
+            <div
+              ref={dropdownRef}
+              className={`dropdown__content ${dropdownActive ? "active" : ""}`}
+            >
               <div className="content__card">
                 <div className="card__icon">
                   <Settings color="#0d0d0d" size="20" />
@@ -117,7 +120,8 @@ const Navbar = () => {
           <>
             <Button
               text="Crear cuenta"
-              type="btn-link"
+              type="button"
+              styleType="btn-link"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/register");
@@ -125,7 +129,8 @@ const Navbar = () => {
             />
             <Button
               text="Iniciar sesión"
-              type="btn-primary"
+              type="button"
+              styleType="btn-primary"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/login");

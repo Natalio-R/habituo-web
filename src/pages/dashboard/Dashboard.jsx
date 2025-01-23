@@ -1,11 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthContext";
-import { Settings, LogOut, Inbox, List } from "react-feather";
-import { ColumnHeader } from "../../routes/index";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../hooks/firebase";
+import { Settings, LogOut, Inbox, List, Plus } from "react-feather";
+import { ColumnHeader, AllHabits } from "../../routes/index";
+import Modal from "../../components/modals/Modal";
+import { Toast } from "../../routes/index";
 
 const Dashboard = () => {
+  const [toast, setToast] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
   const { user, logout } = useAuth();
+  const [areas, setAreas] = useState([]);
   const [dropdownActive, setDropdownActive] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
@@ -14,16 +22,67 @@ const Dashboard = () => {
   const col3Ref = useRef(null);
   const resizer1Ref = useRef(null);
   const resizer2Ref = useRef(null);
+  const buttonRef = useRef(null);
+  const [selectedArea, setSelectedArea] = useState(null);
+  const [showEditButton, setShowEditButton] = useState(false);
+  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [type, setType] = useState(false);
+
+  const handleOpenModal = (type, areaId) => {
+    setType(type);
+    if (areaId && type === "area") {
+      setSelectedArea(areas.find(area => area.id === areaId));
+    }
+    setIsModalOpen(true);
+  };
 
   const toggleDropdown = () => {
     setDropdownActive(!dropdownActive);
   };
 
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setDropdownActive(false);
+  const handleContextMenu = (e, area) => {
+    e.preventDefault();
+
+    // Establecer el área seleccionada
+    setSelectedArea(area);
+
+    // Establecer la posición del botón para que se muestre en el lugar adecuado
+    setButtonPosition({
+      x: e.clientX, // Posición horizontal
+      y: e.clientY, // Posición vertical
+    });
+
+    // Mostrar el botón de editar
+    setShowEditButton(true);
+  };
+
+  const fetchAreas = async () => {
+    if (!user) return;
+
+    try {
+      const areasRef = collection(db, "users", user.uid, "areas");
+
+      const unsubscribe = onSnapshot(areasRef, (snapshot) => {
+        const areasList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        setAreas(areasList);
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    } catch (error) {
+      console.error("Error al obtener las áreas: ", error);
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAreas();
+  }, [user]);
 
   useEffect(() => {
     let isResizing = false;
@@ -36,7 +95,6 @@ const Dashboard = () => {
       activeResizer = resizer;
       startX = e.clientX;
 
-      // Obtener anchos iniciales como porcentaje
       const containerWidth = containerRef.current.offsetWidth;
       initialWidths = {
         col1: (col1Ref.current.offsetWidth / containerWidth) * 100,
@@ -53,21 +111,19 @@ const Dashboard = () => {
       if (!isResizing || !activeResizer) return;
 
       const deltaX = e.clientX - startX;
-      const { col1, col2, col3, container } = initialWidths;
+      const { col1, col3, container } = initialWidths;
 
       if (activeResizer === resizer1Ref.current) {
-        // Modificar primera y segunda columna
         let newCol1Width = col1 + (deltaX / container) * 100;
-        newCol1Width = Math.max(12, Math.min(newCol1Width, 16)); // Limitar entre 12% y 16%
+        newCol1Width = Math.max(13, Math.min(newCol1Width, 16));
 
         const newCol2Width = 100 - newCol1Width - col3;
 
         col1Ref.current.style.width = `${newCol1Width}%`;
         col2Ref.current.style.width = `${newCol2Width}%`;
       } else if (activeResizer === resizer2Ref.current) {
-        // Modificar segunda y tercera columna
         let newCol3Width = col3 - (deltaX / container) * 100;
-        newCol3Width = Math.max(20, Math.min(newCol3Width, 50)); // Limitar entre 20% y 50%
+        newCol3Width = Math.max(20, Math.min(newCol3Width, 50));
 
         const newCol2Width = 100 - col1 - newCol3Width;
 
@@ -83,7 +139,6 @@ const Dashboard = () => {
       document.removeEventListener("mouseup", handleMouseUp);
     };
 
-    // Asignar eventos a los resizers
     resizer1Ref.current.addEventListener("mousedown", (e) =>
       handleMouseDown(e, resizer1Ref.current)
     );
@@ -91,12 +146,20 @@ const Dashboard = () => {
       handleMouseDown(e, resizer2Ref.current)
     );
 
+    const handleClickOutside = (e) => {
+      if (buttonRef.current && !buttonRef.current.contains(e.target)) {
+        setShowEditButton(false); // Ocultar el botón si se hace clic fuera de él
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+
     return () => {
-      // Cleanup eventos
       resizer1Ref.current?.removeEventListener("mousedown", handleMouseDown);
       resizer2Ref.current?.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -173,10 +236,57 @@ const Dashboard = () => {
             <li className="list__item">
               <Link to="/dashboard">
                 <Inbox size={20} color="#2a2a2a" />
-                Todos los hábitos
+                Todas las áreas
+              </Link>
+              <span className="item__count">{areas.length}</span>
+            </li>
+            {loading ? (
+              <li className="list__item loading">
+                <span className="skeleton"></span>
+              </li>
+            ) : (
+              <>
+                {areas.map((area) => (
+                  <li
+                    key={area.id}
+                    className="list__item"
+                    onContextMenu={(e) => handleContextMenu(e, area)}
+                  >
+                    <Link to={`/area/${area.id}`}>{area.name}</Link>
+                  </li>
+                ))}
+              </>
+            )}
+            <li className="list__item">
+              <Link
+                to="/dashboard"
+                onClick={() => {
+                  handleOpenModal("area", null);
+                }}
+              >
+                <Plus size={20} color="#2a2a2a" />
+                Añadir nueva
               </Link>
             </li>
           </ul>
+          {showEditButton && selectedArea && (
+            <button
+              ref={buttonRef}
+              style={{
+                position: "absolute",
+                left: `${buttonPosition.x}px`,
+                top: `${buttonPosition.y}px`,
+              }}
+              onClick={() => {
+                if (selectedArea) {
+                  setIsAreaModalOpen(true);
+                  handleOpenModal("area-edit", selectedArea.id);
+                }
+              }}
+            >
+              Editar
+            </button>
+          )}
           <ul className="list">
             <span className="list__title">Preferencias</span>
             <li className="list__item">
@@ -205,7 +315,24 @@ const Dashboard = () => {
         }}
       ></div>
       <div ref={col2Ref} className="column" id="col2">
-        <ColumnHeader title="Todos los hábitos" buttons={["search", "date", "order", "actions"]} />
+        <ColumnHeader
+          title="Todos los hábitos"
+          buttons={["search", "date", "order", "actions"]}
+        />
+        <AllHabits />
+          <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            type={type}
+            areaId={selectedArea?.id}
+            setToast={setToast}
+          />
+          <Toast
+        isOpen={!!toast}
+        onClose={() => setToast(null)}
+        type={toast?.type}
+        message={toast?.message}
+      />
       </div>
       <div
         ref={resizer2Ref}

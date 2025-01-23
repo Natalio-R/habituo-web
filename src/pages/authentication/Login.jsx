@@ -108,7 +108,12 @@ const Login = () => {
           <span className="input__error">{errors.password}</span>
         )}
       </div>
-      <Button text="Iniciar sesión" type="btn-primary" onClick={handleLogin} />
+      <Button
+        text="Iniciar sesión"
+        type="button"
+        styleType="btn-primary"
+        onClick={handleLogin}
+      />
       <div className="auth__another">
         <div className="line"></div>
         <span>o</span>

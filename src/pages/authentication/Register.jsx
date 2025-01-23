@@ -143,7 +143,12 @@ const Register = () => {
           <p className="input__error">{errors.confirmPassword}</p>
         )}
       </div>
-      <Button text="Registrarse" type="btn-primary" onClick={handleRegister} />
+      <Button
+        text="Registrarse"
+        type="button"
+        styleType="btn-primary"
+        onClick={handleRegister}
+      />
       <div className="auth__another">
         <div className="line"></div>
         <span>o</span>
