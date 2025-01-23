@@ -61,7 +61,8 @@ const RecoverPassword = () => {
       </div>
       <Button
         text="Enviar enlace"
-        type="btn-primary"
+        type="button"
+        styleType="btn-primary"
         onClick={handlePasswordReset}
       />
       <p>{message && <span className="success-message">{message}</span>}</p>
