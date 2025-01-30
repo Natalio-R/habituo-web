@@ -1,145 +1,103 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import Button from "../components/buttons/Button";
+import React from "react";
 import logo from "../assets/images/habituo-logo.svg";
 import { useAuth } from "../hooks/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { Settings, LogOut } from "react-feather";
+import { useTheme } from "../theme/ThemeContext";
+import { UserProfileSection, LogInSection, ThemePanel } from "../routes/index";
+import { PiMagicWandLight } from "react-icons/pi";
+import {
+  Box,
+  Flex,
+  Link,
+  Image,
+  HStack,
+  IconButton,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverBody,
+} from "@chakra-ui/react";
 
+/**
+ * Navbar component that provides navigation links and user authentication controls.
+ * Includes a theme settings popover and authentication options.
+ */
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [dropdownActive, setDropdownActive] = useState(false);
-  const dropdownRef = useRef(null);
-
-  const toggleDropdown = () => {
-    setDropdownActive(!dropdownActive);
-  };
-
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setDropdownActive(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const { user } = useAuth(); // Get authentication state
+  const { updateTheme } = useTheme(); // Access theme update function
 
   return (
-    <nav id="navbar" className="container mb-4">
-      <div className="nav__logotype">
-        <a href="https://habituo.app/">
-          <img
-            src={logo}
-            width="200"
-            height
-            alt="Habituo App - Tracker de hábitos"
-          />
-        </a>
-      </div>
-      <div className="nav__menu">
-        <ul>
-          <li>
-            <Link to="/">Inicio</Link>
-          </li>
-          <li>
-            <Link to="/dashboard">Tablero</Link>
-          </li>
-        </ul>
-      </div>
-      <div className="nav__buttons">
-        {user ? (
-          <>
-            <div className="user-card" onClick={toggleDropdown}>
-              {user.photoURL ? (
-                <img
-                  src={`//wsrv.nl/?url=${user.photoURL}`}
-                  alt="Foto del usuario"
-                  width="40"
-                  height="40"
-                />
-              ) : (
-                <div
-                  className="user-avatar"
-                  style={{
-                    width: "40px",
-                    height: "40px",
-                    borderRadius: "50%",
-                    backgroundColor: `#${Math.floor(
-                      Math.random() * 16777215
-                    ).toString(16)}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontWeight: "bold",
-                    color: "#fff",
-                    fontSize: "18px",
-                  }}
-                >
-                  {user.displayName
-                    ? user.displayName[0].toUpperCase()
-                    : user.email[0].toUpperCase()}
-                </div>
-              )}
-              <div className="user-info">
-                <span className="user-name">
-                  {user.displayName || user.email.split("@")[0]}
-                </span>
-                <span className="user-email">{user.email}</span>
-              </div>
-            </div>
-            <div
-              ref={dropdownRef}
-              className={`dropdown__content ${dropdownActive ? "active" : ""}`}
+    <Box px={4} py={4} shadow="sm" position="sticky" top={0} zIndex={10}>
+      <Flex
+        alignItems="center"
+        justifyContent="space-between"
+        maxW="7xl"
+        mx="auto"
+      >
+        {/* Logo section */}
+        <Box>
+          <Link href="/">
+            <Image src={logo} alt="Logo" w="145px" objectFit="contain" />
+          </Link>
+        </Box>
+
+        {/* Navigation links - visible only on medium screens and larger */}
+        <HStack as="nav" spacing={6} display={{ base: "none", md: "flex" }}>
+          <Link
+            href="/"
+            fontSize=".875rem"
+            lineHeight="1.25rem"
+            fontWeight="500"
+            _hover={{ color: `${useTheme.focusColor}.400` }}
+          >
+            Inicio
+          </Link>
+          <Link
+            href="/dashboard"
+            fontSize=".875rem"
+            lineHeight="1.25rem"
+            fontWeight="500"
+            _hover={{ color: `${useTheme.focusColor}` }}
+          >
+            Tablero
+          </Link>
+        </HStack>
+
+        {/* Right-side buttons section */}
+        <Flex alignItems="center" gap={3}>
+          {/* Theme settings button inside a popover */}
+          <Popover>
+            <PopoverTrigger>
+              <IconButton
+                w="36px"
+                h="36px"
+                bg="transparent"
+                border="none"
+                fontSize="xl"
+                variant="outline"
+                size="sm"
+              >
+                <PiMagicWandLight />
+              </IconButton>
+            </PopoverTrigger>
+            <PopoverContent
+              borderRadius="base"
+              boxShadow="0px 8px 16px color-mix(in srgb, var(--chakra-colors-gray-900) 10%, transparent), 0px 0px 1px color-mix(in srgb, var(--chakra-colors-gray-900) 30%, transparent)"
+              outline="none"
+              border="none"
             >
-              <div className="content__card">
-                <div className="card__icon">
-                  <Settings color="#0d0d0d" size="20" />
-                </div>
-                <div className="card__info">
-                  <p onClick={logout}>Preferencias</p>
-                  <span>Ajustes de la cuenta </span>
-                </div>
-              </div>
-              <div className="content__card">
-                <div className="card__icon">
-                  <LogOut color="#0d0d0d" size="20" />
-                </div>
-                <div className="card__info">
-                  <p onClick={logout}>Cerrar sesión</p>
-                  <span>Cierra la sesión actual</span>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <Button
-              text="Crear cuenta"
-              type="button"
-              styleType="btn-link"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate("/register");
-              }}
-            />
-            <Button
-              text="Iniciar sesión"
-              type="button"
-              styleType="btn-primary"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate("/login");
-              }}
-            />
-          </>
-        )}
-      </div>
-    </nav>
+              <PopoverArrow boxShadow="inherit" />
+              <PopoverBody>
+                <ThemePanel onUpdateTheme={updateTheme} />
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
+
+          {/* Authentication section: Shows profile if logged in, login button otherwise */}
+          {user ? <UserProfileSection /> : <LogInSection />}
+        </Flex>
+      </Flex>
+    </Box>
   );
 };
 

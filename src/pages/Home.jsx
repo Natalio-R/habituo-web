@@ -1,14 +1,26 @@
-import React from 'react'
+import React from "react";
 import { Navbar, Footer } from "../routes/index";
+import { ChakraProvider } from "@chakra-ui/react";
+import { useTheme } from "../theme/ThemeContext";
+import customTheme from "../theme/theme";
 
 const Home = () => {
+  const { themeOptions, updateTheme } = useTheme();
+
   return (
     <>
-    <Navbar />
-    <h1>Estamos en la Home</h1>
-    <Footer />
+      <ChakraProvider
+        theme={customTheme(
+          themeOptions.focusColor,
+          themeOptions.fontFamily,
+          themeOptions.borderRadius
+        )}
+      >
+        <Navbar onUpdateTheme={updateTheme} />
+        <Footer />
+      </ChakraProvider>
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
