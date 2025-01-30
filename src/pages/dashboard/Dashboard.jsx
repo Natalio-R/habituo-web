@@ -1,61 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthContext";
 import { collection, onSnapshot } from "firebase/firestore";
 import { db } from "../../hooks/firebase";
-import { Settings, LogOut, Inbox, List, Plus } from "react-feather";
-import { ColumnHeader, AllHabits } from "../../routes/index";
-import Modal from "../../components/modals/Modal";
-import { Toast } from "../../routes/index";
+import { AllHabits, LeftColumn } from "../../routes/index";
+import customTheme from "../../theme/theme";
+import { useTheme } from "../../theme/ThemeContext";
+import { ChakraProvider } from "@chakra-ui/react";
 
 const Dashboard = () => {
-  const [toast, setToast] = useState(null);
+  const { themeOptions, updateTheme } = useTheme();
   const [loading, setLoading] = useState(true);
-  const [isAreaModalOpen, setIsAreaModalOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [areas, setAreas] = useState([]);
-  const [dropdownActive, setDropdownActive] = useState(false);
-  const dropdownRef = useRef(null);
   const containerRef = useRef(null);
   const col1Ref = useRef(null);
   const col2Ref = useRef(null);
   const col3Ref = useRef(null);
   const resizer1Ref = useRef(null);
   const resizer2Ref = useRef(null);
-  const buttonRef = useRef(null);
-  const [selectedArea, setSelectedArea] = useState(null);
-  const [showEditButton, setShowEditButton] = useState(false);
-  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [type, setType] = useState(false);
-
-  const handleOpenModal = (type, areaId) => {
-    setType(type);
-    if (areaId && type === "area") {
-      setSelectedArea(areas.find(area => area.id === areaId));
-    }
-    setIsModalOpen(true);
-  };
-
-  const toggleDropdown = () => {
-    setDropdownActive(!dropdownActive);
-  };
-
-  const handleContextMenu = (e, area) => {
-    e.preventDefault();
-
-    // Establecer el área seleccionada
-    setSelectedArea(area);
-
-    // Establecer la posición del botón para que se muestre en el lugar adecuado
-    setButtonPosition({
-      x: e.clientX, // Posición horizontal
-      y: e.clientY, // Posición vertical
-    });
-
-    // Mostrar el botón de editar
-    setShowEditButton(true);
-  };
+  const location = useLocation();
+  const isAllHabitsPage = location.pathname === "/dashboard/all-habits";
 
   const fetchAreas = async () => {
     if (!user) return;
@@ -146,83 +111,27 @@ const Dashboard = () => {
       handleMouseDown(e, resizer2Ref.current)
     );
 
-    const handleClickOutside = (e) => {
-      if (buttonRef.current && !buttonRef.current.contains(e.target)) {
-        setShowEditButton(false); // Ocultar el botón si se hace clic fuera de él
-      }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-
     return () => {
       resizer1Ref.current?.removeEventListener("mousedown", handleMouseDown);
       resizer2Ref.current?.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
   return (
-    <div id="dashboard" ref={containerRef}>
-      <div ref={col1Ref} className="column" id="col1">
-        {user ? (
-          <>
-            <div className="user-card" onClick={toggleDropdown}>
-              {user.photoURL ? (
-                <img
-                  src={`//wsrv.nl/?url=${user.photoURL}`}
-                  alt="Foto del usuario"
-                  width="40"
-                  height="40"
-                />
-              ) : (
-                <div
-                  className="user-avatar"
-                  style={{
-                    backgroundColor: `#${Math.floor(
-                      Math.random() * 16777215
-                    ).toString(16)}`,
-                  }}
-                >
-                  {user.displayName
-                    ? user.displayName[0].toUpperCase()
-                    : user.email[0].toUpperCase()}
-                </div>
-              )}
-              <div className="user-info">
-                <span className="user-name">
-                  {user.displayName || user.email.split("@")[0]}
-                </span>
-                <span className="user-email">{user.email}</span>
-              </div>
-            </div>
-            <div
-              ref={dropdownRef}
-              className={`dropdown__content ${dropdownActive ? "active" : ""}`}
-            >
-              <div className="content__card">
-                <div className="card__icon">
-                  <Settings color="#0d0d0d" size="20" />
-                </div>
-                <div className="card__info">
-                  <p onClick={logout}>Preferencias</p>
-                  <span>Ajustes de la cuenta </span>
-                </div>
-              </div>
-              <div className="content__card">
-                <div className="card__icon">
-                  <LogOut color="#0d0d0d" size="20" />
-                </div>
-                <div className="card__info">
-                  <p onClick={logout}>Cerrar sesión</p>
-                  <span>Cierra la sesión actual</span>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : null}
-        <div className="column__lists">
+    <ChakraProvider
+      theme={customTheme(
+        themeOptions.focusColor,
+        themeOptions.fontFamily,
+        themeOptions.borderRadius
+      )}
+    >
+      <div id="dashboard" ref={containerRef}>
+        <div ref={col1Ref} className="column" id="col1">
+          {user ? <LeftColumn userInfo={user} /> : null}
+
+          {/* <div className="column__lists">
           <ul className="list">
             <li className="list__item active">
               <Link to="/dashboard">
@@ -247,46 +156,19 @@ const Dashboard = () => {
             ) : (
               <>
                 {areas.map((area) => (
-                  <li
-                    key={area.id}
-                    className="list__item"
-                    onContextMenu={(e) => handleContextMenu(e, area)}
-                  >
+                  <li key={area.id} className="list__item">
                     <Link to={`/area/${area.id}`}>{area.name}</Link>
                   </li>
                 ))}
               </>
             )}
             <li className="list__item">
-              <Link
-                to="/dashboard"
-                onClick={() => {
-                  handleOpenModal("area", null);
-                }}
-              >
+              <Link to="/dashboard">
                 <Plus size={20} color="#2a2a2a" />
                 Añadir nueva
               </Link>
             </li>
           </ul>
-          {showEditButton && selectedArea && (
-            <button
-              ref={buttonRef}
-              style={{
-                position: "absolute",
-                left: `${buttonPosition.x}px`,
-                top: `${buttonPosition.y}px`,
-              }}
-              onClick={() => {
-                if (selectedArea) {
-                  setIsAreaModalOpen(true);
-                  handleOpenModal("area-edit", selectedArea.id);
-                }
-              }}
-            >
-              Editar
-            </button>
-          )}
           <ul className="list">
             <span className="list__title">Preferencias</span>
             <li className="list__item">
@@ -302,52 +184,36 @@ const Dashboard = () => {
               </Link>
             </li>
           </ul>
+        </div> */}
+        </div>
+        <div
+          ref={resizer1Ref}
+          className="resizer"
+          id="resizer1"
+          style={{
+            width: "1px",
+            cursor: "col-resize",
+            backgroundColor: "#c5c5c5",
+          }}
+        ></div>
+        <div ref={col2Ref} className="column" id="col2">
+          {isAllHabitsPage ? <AllHabits /> : <p>Hola</p>}
+        </div>
+        <div
+          ref={resizer2Ref}
+          className="resizer"
+          id="resizer2"
+          style={{
+            width: "1px",
+            cursor: "col-resize",
+            backgroundColor: "#c5c5c5",
+          }}
+        ></div>
+        <div ref={col3Ref} className="column" id="col3" style={{ flex: 3 }}>
+          3
         </div>
       </div>
-      <div
-        ref={resizer1Ref}
-        className="resizer"
-        id="resizer1"
-        style={{
-          width: "1px",
-          cursor: "col-resize",
-          backgroundColor: "#c5c5c5",
-        }}
-      ></div>
-      <div ref={col2Ref} className="column" id="col2">
-        <ColumnHeader
-          title="Todos los hábitos"
-          buttons={["search", "date", "order", "actions"]}
-        />
-        <AllHabits />
-          <Modal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            type={type}
-            areaId={selectedArea?.id}
-            setToast={setToast}
-          />
-          <Toast
-        isOpen={!!toast}
-        onClose={() => setToast(null)}
-        type={toast?.type}
-        message={toast?.message}
-      />
-      </div>
-      <div
-        ref={resizer2Ref}
-        className="resizer"
-        id="resizer2"
-        style={{
-          width: "1px",
-          cursor: "col-resize",
-          backgroundColor: "#c5c5c5",
-        }}
-      ></div>
-      <div ref={col3Ref} className="column" id="col3" style={{ flex: 3 }}>
-        3
-      </div>
-    </div>
+    </ChakraProvider>
   );
 };
 
