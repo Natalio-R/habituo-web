@@ -258,6 +258,7 @@ const CustomThemePanel = ({ onUpdateTheme }) => {
         onClick={onOpen}
         variant={isActive === true ? "solid" : "ghost"}
         colorScheme={isActive === true ? themeOptions.focusColor : ""}
+        _focusVisible="none"
       >
         Crea tu estilo
       </Button>

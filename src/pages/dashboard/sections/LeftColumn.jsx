@@ -153,15 +153,6 @@ const LeftColumn = ({ userInfo }) => {
                 display="flex"
                 justifyContent="flex-start"
                 size="xs"
-                onClick={openModal}
-              >
-                Perfil
-              </Button>
-              <Button
-                p={4}
-                display="flex"
-                justifyContent="flex-start"
-                size="xs"
                 onClick={handleLogout}
               >
                 Cerrar sesión
@@ -192,6 +183,7 @@ const LeftColumn = ({ userInfo }) => {
         fontWeight="semibold"
         textTransform="uppercase"
         opacity={0.4}
+        userSelect="none"
       >
         Áreas
       </Text>
@@ -205,6 +197,7 @@ const LeftColumn = ({ userInfo }) => {
         variant={"ghost"}
         colorScheme={""}
         leftIcon={<LuClipboardList size="16px" />}
+        _focusVisible="none"
       >
         Todas las áreas
       </Button>
@@ -218,6 +211,7 @@ const LeftColumn = ({ userInfo }) => {
         variant={"ghost"}
         colorScheme={""}
         leftIcon={<LuSun size="16px" />}
+        _focusVisible="none"
       >
         Mañanas
       </Button>
@@ -231,6 +225,7 @@ const LeftColumn = ({ userInfo }) => {
         variant={"ghost"}
         colorScheme={""}
         leftIcon={<LuCloudSun size="16px" />}
+        _focusVisible="none"
       >
         Tardes
       </Button>
@@ -244,6 +239,7 @@ const LeftColumn = ({ userInfo }) => {
         variant={"ghost"}
         colorScheme={""}
         leftIcon={<LuMoon size="16px" />}
+        _focusVisible="none"
       >
         Noches
       </Button>
@@ -257,6 +253,7 @@ const LeftColumn = ({ userInfo }) => {
         variant={"ghost"}
         colorScheme={""}
         leftIcon={<FiPlus size="16px" />}
+        _focusVisible="none"
       >
         Agregar nueva
       </Button>
@@ -267,8 +264,9 @@ const LeftColumn = ({ userInfo }) => {
         fontWeight="semibold"
         textTransform="uppercase"
         opacity={0.4}
+        userSelect="none"
       >
-        Ajuster generales
+        Ajustes generales
       </Text>
       <ModalWithTabs userInfo={userInfo} userData={userData} />
       <CustomThemePanel />

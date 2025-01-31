@@ -17,4 +17,10 @@
     width: 20%;
     min-width: 20%;
   }
+
+  .resizer {
+    width: 1px;
+    background-color: var(--chakra-colors-chakra-border-color);
+    cursor: e-resize;
+  }
 }

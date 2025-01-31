@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import PropTypes from "prop-types";
 import {
   Text,
-  Heading,
   Avatar,
   VStack,
   HStack,
@@ -29,6 +28,10 @@ import gLogo from "../../../assets/images/icons/g-icon.webp";
 import mailLogo from "../../../assets/images/icons/mail.svg";
 import { LuMoon, LuSun } from "react-icons/lu";
 import { FaUser, FaCog } from "react-icons/fa";
+import DeleteAccountButton from "./DeleteAccount";
+import { db } from "../../../hooks/firebase"; // Asegúrate de importar tu configuración de Firebase
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 // ModalWithTabs component: Displays a modal with tabs for account settings and general settings.
 const ModalWithTabs = ({ userInfo, userData }) => {
@@ -41,6 +44,11 @@ const ModalWithTabs = ({ userInfo, userData }) => {
   // Custom theme context for managing theme options
   const { themeOptions } = useTheme();
 
+  // Set variables
+  const [name, setName] = useState("");
+
+  const auth = getAuth();
+  const user = auth.currentUser;
   const location = useLocation();
   const isActive = location.pathname === "/dashboard/settings";
 
@@ -59,6 +67,27 @@ const ModalWithTabs = ({ userInfo, userData }) => {
     userName = userInfo.email.split("@")[0];
   }
 
+  useEffect(() => {
+    // Obtener el nombre actual del usuario
+    const fetchUser = async () => {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        setName(userSnap.data().name);
+      }
+    };
+    fetchUser();
+  }, [user.uid]);
+
+  const handleChange = async (e) => {
+    const newName = e.target.value;
+    setName(newName);
+
+    // Actualizar en la base de datos
+    const userRef = doc(db, "users", user.uid);
+    await updateDoc(userRef, { name: newName });
+  };
+
   return (
     <>
       {/* Botón to open the modal */}
@@ -72,6 +101,7 @@ const ModalWithTabs = ({ userInfo, userData }) => {
         leftIcon={<FaCog size="16px" />}
         variant={isActive === true ? "solid" : "ghost"}
         colorScheme={isActive === true ? themeOptions.focusColor : ""}
+        _focusVisible="none"
       >
         Ajustes generales
       </Button>
@@ -188,10 +218,13 @@ const ModalWithTabs = ({ userInfo, userData }) => {
                           Nombre
                         </FormLabel>
                         <Input
-                          value={userName}
+                        type="text"
+                          value={name}
+                          onChange={handleChange}
                           borderRadius={themeOptions.borderRadius}
                           colorScheme={themeOptions.focusColor}
-                          readOnly
+                        _focus={{ borderColor: themeOptions.focusColor }}
+                        _focusVisible={{ borderColor: themeOptions.focusColor }}
                         />
                       </Box>
                     </HStack>
@@ -266,14 +299,7 @@ const ModalWithTabs = ({ userInfo, userData }) => {
                             datos que hay actualmente en ella.
                           </Text>
                         </Box>
-                        <Button
-                          px={6}
-                          variant="outline"
-                          colorScheme="red"
-                          disabled
-                        >
-                          Eliminar
-                        </Button>
+                        <DeleteAccountButton />
                       </HStack>
                     </Box>
                   </Box>
@@ -336,6 +362,9 @@ const ModalWithTabs = ({ userInfo, userData }) => {
                         minW="120px"
                         size="sm"
                         colorScheme={themeOptions.focusColor}
+                        borderRadius={themeOptions.borderRadius}
+                        _focus={{ borderColor: themeOptions.focusColor }}
+                        _focusVisible={{ borderColor: themeOptions.focusColor }}
                       >
                         <option value="monday" defaultChecked>
                           Lunes
@@ -367,6 +396,9 @@ const ModalWithTabs = ({ userInfo, userData }) => {
                         w="auto"
                         size="sm"
                         colorScheme={themeOptions.focusColor}
+                        borderRadius={themeOptions.borderRadius}
+                        _focus={{ borderColor: themeOptions.focusColor }}
+                        _focusVisible={{ borderColor: themeOptions.focusColor }}
                       >
                         <option value="spain" defaultChecked>
                           Español

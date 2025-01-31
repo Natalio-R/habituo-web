@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import Cookies from "js-cookie";
 import {
+  HStack,
   Flex,
   Link,
   Image,
@@ -19,6 +21,9 @@ import {
   IconButton,
   InputGroup,
   InputRightElement,
+  FormErrorMessage,
+  Checkbox,
+  FormControl,
 } from "@chakra-ui/react";
 import logo from "../../assets/images/habituo-logo.svg";
 import gLogo from "../../assets/images/icons/g-icon.webp";
@@ -27,16 +32,15 @@ import { auth, googleProvider } from "../../hooks/firebase";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../../theme/ThemeContext";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import customTheme from "../../theme/theme";
 
 const LogInSection = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true); 
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -60,7 +64,13 @@ const LogInSection = () => {
 
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Usuario:", result.user);
+      if (rememberMe) {
+        // Guardamos la sesión en una cookie con duración de 30 días si la opción está marcada
+        Cookies.set("userSession", email, { expires: 30 });
+      } else {
+        // Si no se marca, eliminamos la cookie (no se guarda sesión)
+        Cookies.set("userSession", email, { expires: 1 });
+      }
       navigate("/dashboard");
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
@@ -74,11 +84,11 @@ const LogInSection = () => {
           ...prev,
           password: "La contraseña es incorrecta.",
         }));
-    } else if (error.code === "auth/invalid-credential") {
+      } else if (error.code === "auth/invalid-credential") {
         setErrors((prev) => ({
-            ...prev,
-            password: "El correo o la contraseña son incorrectos.",
-          }));
+          ...prev,
+          password: "El correo o la contraseña son incorrectos.",
+        }));
       } else {
         setErrors((prev) => ({
           ...prev,
@@ -91,35 +101,37 @@ const LogInSection = () => {
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      console.log("Usuario:", result.user);
       navigate("/dashboard");
     } catch (error) {
-      console.error("Error al iniciar sesión con Google:", error);
+      throw new Error("Error al iniciar sesión con Google:", error);
     }
   };
 
-  const { themeOptions, updateTheme } = useTheme();
+  const { themeOptions } = useTheme();
 
   const handleClick = () => setShowPassword(!showPassword);
+
+  const handleRememberMeChange = () => {
+    setRememberMe(!rememberMe);
+  };
 
   return (
     <Box>
       <Button
         size="sm"
         h="36px"
-        bg="transparent"
+        variant="ghost"
         border="1px solid var(--chakra-colors-chakra-border-color)"
         paddingInline="0.875rem"
-        color="var(--chakra-colors-color-palette-fg)"
-        fontWeight="500"
         onClick={onOpen}
+        userSelect="none"
       >
         Iniciar sesión
       </Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
 
-        <ModalContent>
+        <ModalContent userSelect="none">
           <ModalHeader
             px="1.5rem"
             pt="1.5rem"
@@ -131,16 +143,11 @@ const LogInSection = () => {
               <Image src={logo} alt="Logo" w="145px" objectFit="contain" />
             </Link>
           </ModalHeader>
-          <Box pt="1.5rem" px="1.5rem">
-            <Text as="h3" fontSize="lg" fontWeight="600" lineHeight="1.75rem">
+          <Box pt="1rem" px="1.5rem">
+            <Text fontSize="lg" fontWeight="600">
               Iniciar sesión
             </Text>
-            <Text
-              as="p"
-              color="var(--chakra-colors-gray-600)"
-              fontSize="sm"
-              lineHeight="1.25rem"
-            >
+            <Text fontSize="sm">
               Utiliza tu dirección de correo electrónico o cuenta de Google para
               iniciar sesión.
             </Text>
@@ -148,129 +155,128 @@ const LogInSection = () => {
           <ModalCloseButton />
           <ModalBody p="1.5rem">
             <VStack spacing={6} align="stretch">
-              {/* Formulario para iniciar sesión */}
-              <VStack as="form" spacing={4} w="100%">
-                <Box w="100%">
-                  <Input
-                    type="email"
-                    placeholder="Correo electrónico"
-                    variant="outline"
-                    focusBorderColor={themeOptions.focusColor}
+              {/* Form to login */}
+              <FormControl isInvalid={!!errors.email}>
+                <VStack as="form" spacing={4} w="100%">
+                  <Box w="100%">
+                    <Input
+                      type="email"
+                      variant="outline"
+                      size="sm"
+                      h="2.5rem"
+                      placeholder="Correo electrónico"
+                      onChange={(e) => setEmail(e.target.value)}
+                      borderRadius={themeOptions.borderRadius}
+                      _focus={{ borderColor: themeOptions.focusColor }}
+                      _focusVisible={{ borderColor: themeOptions.focusColor }}
+                      isInvalid={!!errors.email}
+                    />
+                    {errors.email && (
+                      <FormErrorMessage>{errors.email}</FormErrorMessage>
+                    )}
+                  </Box>
+                  <Box w="100%">
+                    <InputGroup>
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        variant="outline"
+                        size="sm"
+                        h="2.5rem"
+                        placeholder="Contraseña"
+                        onChange={(e) => setPassword(e.target.value)}
+                        borderRadius={themeOptions.borderRadius}
+                        _focus={{ borderColor: themeOptions.focusColor }}
+                        _focusVisible={{ borderColor: themeOptions.focusColor }}
+                        isInvalid={!!errors.password}
+                      />
+                      <InputRightElement>
+                        <IconButton
+                          aria-label={
+                            showPassword
+                              ? "Ocultar contraseña"
+                              : "Mostrar contraseña"
+                          }
+                          w="36px"
+                          h="36px"
+                          bg="transparent"
+                          border="none"
+                          fontSize="md"
+                          variant="outline"
+                          size="sm"
+                          borderRadius={themeOptions.borderRadius}
+                          icon={
+                            showPassword ? (
+                              <AiOutlineEyeInvisible />
+                            ) : (
+                              <AiOutlineEye />
+                            )
+                          }
+                          onClick={handleClick}
+                        />
+                      </InputRightElement>
+                    </InputGroup>
+                    {errors.password && (
+                      <FormErrorMessage>{errors.password}</FormErrorMessage>
+                    )}
+                  </Box>
+                  <Box
+                    px={2}
+                    w="100%"
+                    display="flex"
+                    justifyContent="space-between"
+                  >
+                    <Checkbox
+                      size="sm"
+                      colorScheme={themeOptions.focusColor}
+                      onChange={handleRememberMeChange}
+                      checked={rememberMe}
+                      defaultChecked
+                    >
+                      Recordarme
+                    </Checkbox>
+                    <Link
+                      fontSize="sm"
+                      href="/recover-password"
+                      _hover={{ color: themeOptions.focusColor }}
+                    >
+                      Recuperar contraseña
+                    </Link>
+                  </Box>
+                  <Button
+                    colorScheme={themeOptions.focusColor}
+                    variant="solid"
                     size="sm"
                     w="100%"
                     h="2.5rem"
-                    borderRadius={themeOptions.borderRadius}
                     fontWeight="500"
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  {errors.email && (
-                    <Text
-                      as="span"
-                      color="var(--chakra-colors-red-600)"
-                      fontSize="xs"
-                      fontWeight="500"
-                    >
-                      {errors.email}
-                    </Text>
-                  )}
-                </Box>
-                <Box w="100%">
-                  <InputGroup>
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      variant="outline"
-                      placeholder="Contraseña"
-                      focusBorderColor={themeOptions.focusColor}
-                      size="sm"
-                      w="100%"
-                      h="2.5rem"
-                      onChange={(e) => setPassword(e.target.value)}
-                      borderRadius={themeOptions.borderRadius}
-                      fontWeight="500"
-                    />
-                    <InputRightElement>
-                      <IconButton
-                        aria-label={
-                          showPassword
-                            ? "Ocultar contraseña"
-                            : "Mostrar contraseña"
-                        }
-                        w="36px"
-                        h="36px"
-                        bg="transparent"
-                        border="none"
-                        fontSize="md"
-                        variant="outline"
-                        size="sm"
-                        icon={
-                          showPassword ? (
-                            <AiOutlineEyeInvisible />
-                          ) : (
-                            <AiOutlineEye />
-                          )
-                        }
-                        onClick={handleClick}
-                      />
-                    </InputRightElement>
-                  </InputGroup>
-                  {errors.password ? (
-                    <Text
-                      as="span"
-                      color="var(--chakra-colors-red-600)"
-                      fontSize="xs"
-                      fontWeight="500"
-                    >
-                      {errors.password}
-                    </Text>
-                  ) : (
-                    <Link
-                    href="/recover-password"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        navigate("/recover-password");
-                      }}
-                    color="var(--chakra-colors-gray-600)"
-                    fontSize="xs"
-                    fontWeight="500"
-                    _hover={{ color: `${useTheme.focusColor}` }}
+                    onClick={handleLogin}
                   >
-                    Recuperar contraseña
-                  </Link>
-                  )}
-                </Box>
-                <Button
-                  colorScheme={themeOptions.focusColor}
-                  variant="solid"
-                  size="sm"
-                  w="100%"
-                  h="2.5rem"
-                  fontWeight="500"
-                  onClick={handleLogin}
-                >
-                  Iniciar sesión
-                </Button>
-              </VStack>
+                    Iniciar sesión
+                  </Button>
+                </VStack>
+              </FormControl>
 
-              {/* Separador con "o" */}
-              <Flex align="center" w="100%">
-                <Box h="1px" bg="var(--chakra-colors-gray-200)" flex="1" />
-                <Text
-                  px={2}
-                  color="var(--chakra-colors-gray-400)"
-                  fontSize="sm"
-                >
-                  O
-                </Text>
-                <Box h="1px" bg="var(--chakra-colors-gray-200)" flex="1" />
-              </Flex>
+              {/* Separate with "o" */}
+              <FormControl isInvalid={!!errors.password}>
+                <Flex align="center" w="100%">
+                  <Box h="1px" bg="var(--chakra-colors-gray-200)" flex="1" />
+                  <Text
+                    px={2}
+                    color="var(--chakra-colors-gray-400)"
+                    fontSize="sm"
+                  >
+                    O
+                  </Text>
+                  <Box h="1px" bg="var(--chakra-colors-gray-200)" flex="1" />
+                </Flex>
+              </FormControl>
 
-              {/* Botón de Google */}
+              {/* Google Button */}
               <Button
                 onClick={signInWithGoogle}
                 size="md"
                 w="100%"
-                color="var(--chakra-colors-gray-fg)"
                 fontSize="sm"
                 fontWeight="500"
                 bg="transparent"
@@ -289,12 +295,16 @@ const LogInSection = () => {
                 Continuar con Google
               </Button>
 
-              <Box>
-                <Text as="p">¿Todavía no tienes una cuenta?</Text>
-                <Text as="a" href="/register">
-                  Crea tu cuenta
-                </Text>
-              </Box>
+              <HStack alignItems="center" justifyContent="center">
+                <Text fontSize="sm">¿No tienes cuenta?</Text>
+                <Link
+                  fontSize="sm"
+                  href="/register"
+                  _hover={{ color: themeOptions.focusColor }}
+                >
+                  Regístrate
+                </Link>
+              </HStack>
             </VStack>
           </ModalBody>
         </ModalContent>

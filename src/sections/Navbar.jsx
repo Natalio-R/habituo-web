@@ -45,19 +45,15 @@ const Navbar = () => {
         <HStack as="nav" spacing={6} display={{ base: "none", md: "flex" }}>
           <Link
             href="/"
-            fontSize=".875rem"
-            lineHeight="1.25rem"
-            fontWeight="500"
-            _hover={{ color: `${useTheme.focusColor}.400` }}
+            fontSize="md"
+            _hover={{ color: useTheme.focusColor }}
           >
             Inicio
           </Link>
           <Link
             href="/dashboard"
-            fontSize=".875rem"
-            lineHeight="1.25rem"
-            fontWeight="500"
-            _hover={{ color: `${useTheme.focusColor}` }}
+            fontSize="md"
+            _hover={{ color: useTheme.focusColor }}
           >
             Tablero
           </Link>

@@ -9,7 +9,7 @@ import { useTheme } from "../../theme/ThemeContext";
 import { ChakraProvider } from "@chakra-ui/react";
 
 const Dashboard = () => {
-  const { themeOptions, updateTheme } = useTheme();
+  const { themeOptions } = useTheme();
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const [areas, setAreas] = useState([]);
@@ -130,85 +130,12 @@ const Dashboard = () => {
       <div id="dashboard" ref={containerRef}>
         <div ref={col1Ref} className="column" id="col1">
           {user ? <LeftColumn userInfo={user} /> : null}
-
-          {/* <div className="column__lists">
-          <ul className="list">
-            <li className="list__item active">
-              <Link to="/dashboard">
-                <Inbox size={20} color="#2a2a2a" />
-                Todos los hábitos
-              </Link>
-            </li>
-          </ul>
-          <ul className="list">
-            <span className="list__title">Áreas</span>
-            <li className="list__item">
-              <Link to="/dashboard">
-                <Inbox size={20} color="#2a2a2a" />
-                Todas las áreas
-              </Link>
-              <span className="item__count">{areas.length}</span>
-            </li>
-            {loading ? (
-              <li className="list__item loading">
-                <span className="skeleton"></span>
-              </li>
-            ) : (
-              <>
-                {areas.map((area) => (
-                  <li key={area.id} className="list__item">
-                    <Link to={`/area/${area.id}`}>{area.name}</Link>
-                  </li>
-                ))}
-              </>
-            )}
-            <li className="list__item">
-              <Link to="/dashboard">
-                <Plus size={20} color="#2a2a2a" />
-                Añadir nueva
-              </Link>
-            </li>
-          </ul>
-          <ul className="list">
-            <span className="list__title">Preferencias</span>
-            <li className="list__item">
-              <Link to="/dashboard">
-                <List size={20} color="#2a2a2a" />
-                Gestionar hábitos
-              </Link>
-            </li>
-            <li className="list__item">
-              <Link to="/dashboard">
-                <Settings size={20} color="#2a2a2a" />
-                Ajustes
-              </Link>
-            </li>
-          </ul>
-        </div> */}
         </div>
-        <div
-          ref={resizer1Ref}
-          className="resizer"
-          id="resizer1"
-          style={{
-            width: "1px",
-            cursor: "col-resize",
-            backgroundColor: "#c5c5c5",
-          }}
-        ></div>
+        <div ref={resizer1Ref} className="resizer" id="resizer1"></div>
         <div ref={col2Ref} className="column" id="col2">
           {isAllHabitsPage ? <AllHabits /> : <p>Hola</p>}
         </div>
-        <div
-          ref={resizer2Ref}
-          className="resizer"
-          id="resizer2"
-          style={{
-            width: "1px",
-            cursor: "col-resize",
-            backgroundColor: "#c5c5c5",
-          }}
-        ></div>
+        <div ref={resizer2Ref} className="resizer" id="resizer2"></div>
         <div ref={col3Ref} className="column" id="col3" style={{ flex: 3 }}>
           3
         </div>

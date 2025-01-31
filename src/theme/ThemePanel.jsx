@@ -220,7 +220,7 @@ const ThemePanel = ({ onUpdateTheme }) => {
             fontSize="lg"
             bg="transparent"
             onChange={toggleColorMode}
-            isChecked={colorMode === "dark"}
+            //isChecked={colorMode === "dark"}
             onClick={toggleColorMode}
             size="sm"
           >
@@ -293,7 +293,6 @@ const ThemePanel = ({ onUpdateTheme }) => {
             min={0}
             max={5}
             step={1}
-            colorPalette={focusColor}
             defaultValue={Object.keys(borderMapping).indexOf(borderRadius)}
             onChange={(value) => {
               const newRadius = Object.keys(borderMapping)[value];
