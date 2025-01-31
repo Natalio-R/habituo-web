@@ -4,6 +4,7 @@ import logo from "../../assets/images/habituo-logo.svg";
 import { signInWithPopup, signInWithEmailAndPassword } from "firebase/auth";
 import { auth, googleProvider } from "../../hooks/firebase";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 import {
   Box,
   Container,
@@ -38,6 +39,7 @@ const Login = () => {
   const [errors, setErrors] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true); 
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -63,7 +65,13 @@ const Login = () => {
 
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
-      console.log("Usuario:", result.user);
+      if (rememberMe) {
+        // Guardamos la sesión en una cookie con duración de 30 días si la opción está marcada
+        Cookies.set("userSession", email, { expires: 30 });
+      } else {
+        // Si no se marca, eliminamos la cookie (no se guarda sesión)
+        Cookies.set("userSession", email, { expires: 1 });
+      }
       navigate("/dashboard");
     } catch (error) {
       if (error.code === "auth/user-not-found") {
@@ -90,6 +98,10 @@ const Login = () => {
     }
   };
 
+  const handleRememberMeChange = () => {
+    setRememberMe(!rememberMe);
+  };
+
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
@@ -109,6 +121,7 @@ const Login = () => {
         as="main"
         onUpdateTheme={updateTheme}
         fontFamily={themeOptions.fontFamily}
+        userSelect="none"
       >
         <Flex
           h="100vh"
@@ -154,10 +167,8 @@ const Login = () => {
                 h="2.5rem"
                 onChange={(e) => setEmail(e.target.value)}
                 borderRadius={themeOptions.borderRadius}
-                _focus={{
-                  borderColor: "transparent",
-                  boxShadow: `0 0 0 2px var(--chakra-colors-${themeOptions.focusColor}-500)`,
-                }}
+                _focus={{ borderColor: themeOptions.focusColor }}
+                _focusVisible={{ borderColor: themeOptions.focusColor }}
                 isInvalid={!!errors.email}
               />
               {errors.email && (
@@ -175,10 +186,8 @@ const Login = () => {
                   h="2.5rem"
                   onChange={(e) => setPassword(e.target.value)}
                   borderRadius={themeOptions.borderRadius}
-                  _focus={{
-                    borderColor: "transparent",
-                    boxShadow: `0 0 0 2px var(--chakra-colors-${themeOptions.focusColor}-500)`,
-                  }}
+                  _focus={{ borderColor: themeOptions.focusColor }}
+                  _focusVisible={{ borderColor: themeOptions.focusColor }}
                   isInvalid={!!errors.password}
                 />
                 <InputRightElement>
@@ -194,6 +203,7 @@ const Login = () => {
                     variant="outline"
                     size="sm"
                     borderRadius={themeOptions.borderRadius}
+                    _focusVisible="none"
                     icon={
                       showPassword ? (
                         <AiOutlineEyeInvisible />
@@ -210,12 +220,12 @@ const Login = () => {
               )}
             </Box>
             <HStack alignItems="center" justifyContent="space-between">
-              <Checkbox colorScheme={themeOptions.focusColor} defaultChecked>
+              <Checkbox colorScheme={themeOptions.focusColor} onChange={handleRememberMeChange} checked={rememberMe} defaultChecked>
                 Recordarme
               </Checkbox>
               <Link
                 href="/recover-password"
-                color={`var(--chakra-colors-${themeOptions.focusColor}-600)`}
+                _hover={{ color: themeOptions.focusColor }}
               >
                 Recuperar contraseña
               </Link>
@@ -227,18 +237,19 @@ const Login = () => {
                 borderRadius={themeOptions.borderRadius}
                 fontSize="sm"
                 onClick={handleLogin}
+                _focusVisible="none"
               >
                 Iniciar sesión
               </Button>
               <Button
                 onClick={signInWithGoogle}
                 size="md"
-                color="var(--chakra-colors-gray-fg)"
                 fontSize="sm"
                 bg="transparent"
                 borderWidth="1px"
                 borderColor="var(--chakra-colors-gray-200)"
                 borderRadius={themeOptions.borderRadius}
+                _focusVisible="none"
                 leftIcon={
                   <Avatar
                     src={gLogo}
@@ -256,7 +267,7 @@ const Login = () => {
               <Text>¿No tienes cuenta?</Text>
               <Link
                 href="/register"
-                color={`var(--chakra-colors-${themeOptions.focusColor}-600)`}
+                _hover={{ color: themeOptions.focusColor }}
               >
                 Regístrate
               </Link>

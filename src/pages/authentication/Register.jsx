@@ -102,8 +102,8 @@ const Register = () => {
         await setDoc(userDoc, {
           name: result.user.displayName || "Usuario sin nombre",
           email: result.user.email,
-          areas: {}
-        })
+          areas: {},
+        });
       }
 
       navigate("/dashboard");
@@ -135,7 +135,6 @@ const Register = () => {
     } catch (error) {
       if (errors.code === "auth/email-already-in-use") {
         setErrors({ email: "El correo ya está en uso." });
-      } else {
       }
     }
   };
@@ -156,6 +155,7 @@ const Register = () => {
         as="main"
         onUpdateTheme={updateTheme}
         fontFamily={themeOptions.fontFamily}
+        userSelect="none"
       >
         <Flex
           h="100vh"
@@ -200,10 +200,8 @@ const Register = () => {
                 h="2.5rem"
                 value={formData.name}
                 borderRadius={themeOptions.borderRadius}
-                _focus={{
-                  borderColor: "transparent",
-                  boxShadow: `0 0 0 2px var(--chakra-colors-${themeOptions.focusColor}-500)`,
-                }}
+                _focus={{ borderColor: themeOptions.focusColor }}
+                _focusVisible={{ borderColor: themeOptions.focusColor }}
                 onChange={handleInputChange}
                 isInvalid={!!errors.name}
               />
@@ -221,10 +219,8 @@ const Register = () => {
                 h="2.5rem"
                 value={formData.email}
                 borderRadius={themeOptions.borderRadius}
-                _focus={{
-                  borderColor: "transparent",
-                  boxShadow: `0 0 0 2px var(--chakra-colors-${themeOptions.focusColor}-500)`,
-                }}
+                _focus={{ borderColor: themeOptions.focusColor }}
+                _focusVisible={{ borderColor: themeOptions.focusColor }}
                 onChange={handleInputChange}
                 isInvalid={!!errors.email}
               />
@@ -244,10 +240,8 @@ const Register = () => {
                   h="2.5rem"
                   onChange={handleInputChange}
                   borderRadius={themeOptions.borderRadius}
-                  _focus={{
-                    borderColor: "transparent",
-                    boxShadow: `0 0 0 2px var(--chakra-colors-${themeOptions.focusColor}-500)`,
-                  }}
+                  _focus={{ borderColor: themeOptions.focusColor }}
+                  _focusVisible={{ borderColor: themeOptions.focusColor }}
                   isInvalid={!!errors.password}
                 />
                 <InputRightElement>
@@ -290,10 +284,8 @@ const Register = () => {
                   h="2.5rem"
                   onChange={handleInputChange}
                   borderRadius={themeOptions.borderRadius}
-                  _focus={{
-                    borderColor: "transparent",
-                    boxShadow: `0 0 0 2px var(--chakra-colors-${themeOptions.focusColor}-500)`,
-                  }}
+                  _focus={{ borderColor: themeOptions.focusColor }}
+                  _focusVisible={{ borderColor: themeOptions.focusColor }}
                   isInvalid={!!errors.confirmPassword}
                 />
                 <InputRightElement>
@@ -309,6 +301,7 @@ const Register = () => {
                     variant="outline"
                     size="sm"
                     borderRadius={themeOptions.borderRadius}
+                    _focusVisible="none"
                     icon={
                       showPassword ? (
                         <AiOutlineEyeInvisible />
@@ -331,18 +324,19 @@ const Register = () => {
                 borderRadius={themeOptions.borderRadius}
                 fontSize="sm"
                 onClick={handleRegister}
+                _focusVisible="none"
               >
                 Registrarme
               </Button>
               <Button
                 onClick={registerWithGoogle}
                 size="md"
-                color="var(--chakra-colors-gray-fg)"
                 fontSize="sm"
                 bg="transparent"
                 borderWidth="1px"
                 borderColor="var(--chakra-colors-gray-200)"
                 borderRadius={themeOptions.borderRadius}
+                _focusVisible="none"
                 leftIcon={
                   <Avatar
                     src={gLogo}
@@ -358,10 +352,7 @@ const Register = () => {
             </VStack>
             <HStack alignItems="center" justifyContent="center">
               <Text>¿Ya tienes cuenta?</Text>
-              <Link
-                href="/login"
-                color={`var(--chakra-colors-${themeOptions.focusColor}-600)`}
-              >
+              <Link href="/login" _hover={{ color: themeOptions.focusColor }}>
                 Inicia sesión
               </Link>
             </HStack>
@@ -370,7 +361,7 @@ const Register = () => {
       </Container>
     );
   } else {
-    <>{navigate("/dashboard")}</>;
+    navigate("/dashboard");
   }
 };
 
